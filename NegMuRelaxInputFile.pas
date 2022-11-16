@@ -129,6 +129,7 @@ begin
 //XYZ loads in the .xyz coordinate file
 atomicspecies := TstringList.Create;
 atomicspecies1 := TstringList.Create;
+atomicspecies2 := TstringList.Create;
 atomicspecieslines := atomicspecies.Count;
 XYZ := TStringList.Create;
 XYZ.LoadFromFile(Edit13.Text);
@@ -342,41 +343,48 @@ if CheckBox6.Checked then
 begin
 atomicspecies.Add(ComboBox8.Text[1] + ComboBox8.Text[2]);
 atomicspecies1.Add(ComboBox8.Text[1] + ComboBox8.Text[2]);
+atomicspecies2.Add(ComboBox8.Text[1] + ComboBox8.Text[2]);
 end;
 if CheckBox7.Checked then 
 begin
 atomicspecies.Add(ComboBox9.Text[1] + ComboBox9.Text[2]);
 atomicspecies1.Add(ComboBox9.Text[1] + ComboBox9.Text[2]);
+atomicspecies2.Add(ComboBox9.Text[1] + ComboBox9.Text[2]);
 end;
 
 if CheckBox8.Checked then 
 begin
 atomicspecies.Add(ComboBox10.Text[1] + ComboBox10.Text[2]);
 atomicspecies1.Add(ComboBox10.Text[1] + ComboBox10.Text[2]);
+atomicspecies2.Add(ComboBox10.Text[1] + ComboBox10.Text[2]);
 end;
 
 if CheckBox9.Checked then 
 begin
 atomicspecies.Add(ComboBox11.Text[1] + ComboBox11.Text[2]);
 atomicspecies1.Add(ComboBox11.Text[1] + ComboBox11.Text[2]);
+atomicspecies2.Add(ComboBox11.Text[1] + ComboBox11.Text[2]);
 end;
 
 if CheckBox10.Checked then 
 begin
 atomicspecies.Add(ComboBox12.Text[1] + ComboBox12.Text[2]);
 atomicspecies1.Add(ComboBox12.Text[1] + ComboBox12.Text[2]);
+atomicspecies2.Add(ComboBox12.Text[1] + ComboBox12.Text[2]);
 end;
 
 if CheckBox11.Checked then 
 begin
 atomicspecies.Add(ComboBox13.Text[1] + ComboBox13.Text[2]);
 atomicspecies1.Add(ComboBox13.Text[1] + ComboBox13.Text[2]);
+atomicspecies2.Add(ComboBox13.Text[1] + ComboBox13.Text[2]);
 end;
 
 if CheckBox12.Checked then 
 begin
 atomicspecies.Add(ComboBox14.Text[1] + ComboBox14.Text[2]);
 atomicspecies1.Add(ComboBox14.Text[1] + ComboBox14.Text[2]);
+atomicspecies2.Add(ComboBox14.Text[1] + ComboBox14.Text[2]);
 end;
 
 
@@ -932,7 +940,7 @@ for i := 8 to lines -1 do
 CloseFile(F);
 ShowMessage('Input file has been saved to' + ' ' +  SaveFile.Text);
 
-if (CheckBox14.Checked) and (Edit14.Text = '2') then
+if (CheckBox14.Checked) and (Edit14.Text = '2') or (Edit14.Text = '3')  then
 begin
   AssignFile(F2 , SaveFile.Text+'\'+Edit2.Text+'.relax.muminus2.pwi');
   ReWrite(F2);
@@ -1484,6 +1492,560 @@ begin
 end;
 
 CloseFile(F2);
+
+if (CheckBox14.Checked) and (Edit14.Text = '3') then
+begin
+  AssignFile(F3 , SaveFile.Text+'\'+Edit2.Text+'.relax.muminus3.pwi');
+  ReWrite(F3);
+  WriteLn(F3, '&CONTROL');
+  WriteLn(F3, '  calculation =' + QuotedStr(ComboBox1.Text));
+  WriteLn(F3, '  restart_mode = ' + QuotedStr(ComboBox2.Text));
+  WriteLn(F3, '  outdir = ' + QuotedStr(Edit1.Text));
+  WriteLn(F3, '  prefix = ' + QuotedStr(Edit2.Text));
+  WriteLn(F3, '   max_seconds = ' + Edit3.Text);
+  WriteLn(F3, '  pseudo_dir = ' + QuotedStr(Edit4.Text));
+  WriteLn(F3, '/' );
+  WriteLn(F3, '&SYSTEM');
+  WriteLn(F3, '  ecutwfc = ' + Edit8.Text);
+  WriteLn(F3, '  ecutrho = ' + Edit9.Text);
+
+
+
+  if CheckBox1.Checked then
+    begin
+      WriteLn(F3, '  tot_charge = ' + ComboBox3.Text)
+    end;
+  if CheckBox2.Checked then
+    begin
+      WriteLn(F3, '  occupations = ' + QuotedStr(ComboBox4.Text));
+      WriteLn(F3, '  smearing = ' + QuotedStr(ComboBox5.Text));
+      WriteLn(F3, '  degauss = ' + Edit5.Text);
+    end;
+  if CheckBox3.Checked then
+    begin
+      WriteLn(F3, '  lda_plus_u = ' + QuotedStr('.true.'));
+      WriteLn(F3, '  hubbard_u(1) = ' + Edit6.Text);
+      if edit7.Text <> '' then
+        WriteLn(F3, '  hubbard_u(2) = ' + Edit7.Text);
+    end;
+  WriteLn(F3, '  ntyp = ' + ' ' + inttostr(atomicspecies.Count));
+  WriteLn(F3, '  nat = ' + ' ' + inttostr(lines - 8));
+  WriteLn(F3, '  ibrav = 0');  
+  WriteLn(F3, '/');
+  WriteLn(F3, '&ELECTRONS');
+  WriteLn(F3, '  mixing_beta = ' + Edit10.Text);
+  if CheckBox4.Checked then
+    begin
+      WriteLn(F3, '  electron_maxstep = ' + Edit11.Text);
+    end;
+  if CheckBox5.Checked then
+    begin
+      WriteLn(F3, '  mixing_mode = ' + QuotedStr(ComboBox6.Text));
+    end;
+  WriteLn(F3, '/');
+  WriteLn(F3, '&IONS');
+  WriteLn(F3, '  ion_dynamics =' + QuotedStr('bfgs'));
+  WriteLn(F3, '/');
+  WriteLn(F3, '&CELL');
+  WriteLn(F3, '/');
+  WriteLn(F3, 'ATOMIC_SPECIES');
+  if CheckBox6.Checked then
+    begin
+    if ComboBox8.Text[2] <> '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies2.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox8.Text[1] + ComboBox8.Text[2] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass + ' ' + ComboBox8.Text);
+          break
+        end;
+        
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox8.Text[1] + ComboBox8.Text[2] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass + ' ' + ComboBox8.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox8.Text[1] + ComboBox8.Text[2] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass + ' ' + ComboBox8.Text);
+          break
+        end;
+      end;
+    if ComboBox8.Text[2] = '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies2.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox8.Text[1] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass + ' ' + ComboBox8.Text);
+          break
+        end;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox8.Text[1] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass + ' ' + ComboBox8.Text);
+          break
+        end;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox8.Text[1] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass + ' ' + ComboBox8.Text);
+          break
+        end;
+      end
+  
+    end;
+
+  if CheckBox7.Checked then
+    begin
+    if ComboBox9.Text[2] <> '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies2.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox9.Text[1] + ComboBox9.Text[2] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass2 + ' ' + ComboBox9.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox9.Text[1] + ComboBox9.Text[2] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass2 + ' ' + ComboBox9.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox9.Text[1] + ComboBox9.Text[2] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass2 + ' ' + ComboBox9.Text);
+          break
+        end;
+      end;
+    if ComboBox9.Text[2] = '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox9.Text[1] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass2 + ' ' + ComboBox9.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox9.Text[1] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass2 + ' ' + ComboBox9.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox9.Text[1] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass2 + ' ' + ComboBox9.Text);
+          break
+        end;
+      end
+  
+    end;
+
+  if CheckBox8.Checked then
+    begin
+    if ComboBox10.Text[2] <> '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox10.Text[1] + ComboBox10.Text[2] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass3 + ' ' + ComboBox10.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox10.Text[1] + ComboBox10.Text[2] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass3 + ' ' + ComboBox10.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox10.Text[1] + ComboBox10.Text[2] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass3 + ' ' + ComboBox10.Text);
+          break
+        end;
+      end;
+    if ComboBox10.Text[2] = '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox10.Text[1] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass3 + ' ' + ComboBox10.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox10.Text[1] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass3 + ' ' + ComboBox10.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox10.Text[1] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass3 + ' ' + ComboBox10.Text);
+          break
+        end;
+      end
+  
+    end;
+
+  if CheckBox9.Checked then
+    begin
+    if ComboBox11.Text[2] <> '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox11.Text[1] + ComboBox11.Text[2] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass4 + ' ' + ComboBox11.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox11.Text[1] + ComboBox11.Text[2] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass4 + ' ' + ComboBox11.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox11.Text[1] + ComboBox11.Text[2] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass4 + ' ' + ComboBox11.Text);
+          break
+        end;
+      end;
+    if ComboBox11.Text[2] = '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox11.Text[1] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass4 + ' ' + ComboBox11.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox11.Text[1] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass4 + ' ' + ComboBox11.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox11.Text[1] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass4 + ' ' + ComboBox11.Text);
+          break
+        end;
+      end
+  
+    end;
+
+  if CheckBox10.Checked then
+    begin
+    if ComboBox12.Text[2] <> '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox12.Text[1] + ComboBox12.Text[2] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass5 + ' ' + ComboBox12.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox12.Text[1] + ComboBox12.Text[2] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass5 + ' ' + ComboBox12.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox12.Text[1] + ComboBox12.Text[2] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass5 + ' ' + ComboBox12.Text);
+          break
+        end;
+      end;
+    if ComboBox12.Text[2] = '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox12.Text[1] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass5 + ' ' + ComboBox12.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox12.Text[1] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass5 + ' ' + ComboBox12.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox12.Text[1] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass5 + ' ' + ComboBox12.Text);
+          break
+        end;
+      end
+  
+    end;
+
+  if CheckBox11.Checked then
+    begin
+    if ComboBox13.Text[2] <> '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else           
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox13.Text[1] + ComboBox13.Text[2] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass6 + ' ' + ComboBox13.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox13.Text[1] + ComboBox13.Text[2] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass6 + ' ' + ComboBox13.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox13.Text[1] + ComboBox13.Text[2] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass6 + ' ' + ComboBox13.Text);
+          break
+        end;
+      end;
+    if ComboBox12.Text[2] = '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox13.Text[1] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass6 + ' ' + ComboBox13.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox13.Text[1] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass6 + ' ' + ComboBox13.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox13.Text[1] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass6 + ' ' + ComboBox13.Text);
+          break
+        end;
+      end
+  
+    end;
+
+  if CheckBox12.Checked then
+    begin
+    if ComboBox14.Text[2] <> '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox14.Text[1] + ComboBox14.Text[2] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass7 + ' ' + ComboBox14.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox14.Text[1] + ComboBox14.Text[2] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass7 + ' ' + ComboBox14.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox14.Text[1] + ComboBox14.Text[2] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass7 + ' ' + ComboBox14.Text);
+          break
+        end;
+      end;
+    if ComboBox12.Text[2] = '.' then
+      begin
+      for i := 8 to lines-1 do
+        begin
+          if SplitString(XYZ3[i], ' ')[25] = '' then
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[24])
+          else
+            atomicspecies2.Add(SplitString(XYZ3[i], ' ')[25]);
+        end;
+      atomicspecieslines := atomicspecies.Count;
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox14.Text[1] + '1' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass7 + ' ' + ComboBox14.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox14.Text[1] + '2' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass7 + ' ' + ComboBox14.Text);
+          break
+        end;
+
+      for i := 0 to atomicspecieslines-1 do
+        if atomicspecies2[i] = ComboBox14.Text[1] + '3' then
+        begin    
+          WriteLn(F3, atomicspecies2[i]  + ' ' + mass7 + ' ' + ComboBox14.Text);
+          break
+        end;
+      end
+  
+    end;
+
+  WriteLn(F3, 'K_POINTS automatic');
+  WriteLn(F3, Edit12.text + ' 0 0 0 ');
+  WriteLn(F3, 'CELL_PARAMETERS angstrom');
+  for i := 2 to 4 do
+    WriteLn(F3, XYZ3[i]);
+  WriteLn(F3, 'ATOMIC_POSITIONS angstrom');
+  for i := 8 to lines -1 do
+    begin
+      if SplitString(XYZ3[i], ' ')[25] = '' then
+        thisatom := SplitString(XYZ3[i], ' ')[24]
+      else
+        thisatom := SplitString(XYZ3[i], ' ')[25];
+      if SplitString(XYZ3[i], ' ')[5] = '' then
+        thisatomx := SplitString(XYZ3[i], ' ')[4]
+      else
+        thisatomx := SplitString(XYZ3[i], ' ')[5];
+      if SplitString(XYZ3[i], ' ')[14] = '' then
+        thisatomy := SplitString(XYZ3[i], ' ')[13]
+      else
+        thisatomy := SplitString(XYZ3[i], ' ')[14];
+      if SplitString(XYZ3[i], ' ')[23] = '' then
+        thisatomz := SplitString(XYZ3[i], ' ')[22]
+      else
+        thisatomz := SplitString(XYZ3[i], ' ')[23];
+      WriteLn(F3, thisatom + '   ' +  thisatomx + '   '  + thisatomy  + '   ' + thisatomz);
+    end;
+end;
+
+CloseFile(F3);
+
 
 end;
 
